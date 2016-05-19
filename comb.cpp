@@ -344,8 +344,9 @@ void decomp(fstream& in, fstream& out) {
 	vector<bitset<2>> upf;
 	bitset<8> cxr,cxl;
 	vector<bitset<16>> byte;
+	bitset<16> von;
 	bool TRUE=1, FALSE=0;
-	int c=0,m=0,i=0;
+	int c=0,m=0,ni=0,vi=0;
 	in.seekg(in.beg,in.end);
 	long length = in.tellg();
 	in.seekg(in.end,in.beg);
