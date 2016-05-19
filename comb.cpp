@@ -515,19 +515,23 @@ void decomp(fstream& in, fstream& out) {
 				if (getVect(bnode,ni) == FALSE) {
 					kb.reset();
 					if (getVect(bnode,ni) == FALSE)
-						kb.reset();
+						bk.reset();
 					else
-						kb.set();
+						bk.set();
 					for (int i=0;i<8;i++) {
-						von[i] = kb[i];
-						von[i+8] = v[i+8]; 
+						von[i+8] = kb[i];
+						von[i] = bk[i]; 
 					}
 				}
 				else {
 					kb.set();
+					if (getVect(bnode,ni) == FALSE)
+						bk.reset();
+					else
+						bk.set();
 					for (int i=0;i<8;i++) {
-						von[i] = kb[i];
-						von[i+8] = v[i+8]; 
+						von[i+8] = kb[i];
+						von[i] = bk[i]; 
 					}
 				}
 				byte.push_back(von);
