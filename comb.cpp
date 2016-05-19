@@ -432,15 +432,25 @@ void decomp(fstream& in, fstream& out) {
 		}
 		else if (upf[t].to_ulong() == 0 && getVect(tnode,m) == TRUE && getVect(tnode,m+1) == FALSE) {
 			m+=2;
+			for (int i=0;i<8;i++) {
+				von[i+8] = bk[i+8];
+				von[i] = v[i]; 
+			}
 			if (getVect(bnode,ni) == TRUE) {
 				bk.set();
 				ni++;
-				von = bk.to_string() + v.to_string().substr(0,7);
+				for (int i=0;i<8;i++) {
+					von[i+8] = bk[i+8];
+					von[i] = v[i]; 
+				}
 			}
 			else {
 				kb.reset();
 				ni++;
-				von =  kb.reset().to_string() + v.to_string().substr(0,7);
+				for (int i=0;i<8;i++) {
+					von[i+8] = kb[i+8];
+					von[i] = v[i]; 
+				}
 			}
 			byte.push_back(von);
 		}
@@ -448,12 +458,18 @@ void decomp(fstream& in, fstream& out) {
 			m += 2;
 			if (getVect(bnode,ni) == TRUE) {
 				bk.set();
-				von = v.to_string().substr(8,15) + bk.to_string();
+				for (int i=0;i<8;i++) {
+					von[i] = bk[i];
+					von[i+8] = v[i+8]; 
+				}
 				byte.push_back(von);
 			}
 			else if (getVect(bnode,ni) == FALSE) {
 				kb.reset();
-				von = v.to_string().substr(8,15) + kb.to_string();
+				for (int i=0;i<8;i++) {
+					von[i] = kb[i];
+					von[i+8] = v[i+8]; 
+				}
 				byte.push_back(von);
 			}
 		}
@@ -461,14 +477,20 @@ void decomp(fstream& in, fstream& out) {
 			m += 2;
 			if (getVect(bnode,ni) == TRUE) {
 				bk.set();
-				von = v.to_string().substr(8,15) + bk.to_string();
-				byte.push_back(von);
+				for (int i=0;i<8;i++) {
+					von[i] = kb[i];
+					von[i+8] = v[i+8]; 
+				}
 			}
 			else if (getVect(bnode,ni) == FALSE) {
 				kb.reset();
-				von = v.to_string().substr(8,15) + kb.to_string();
-				byte.push_back(von);
+				for (int i=0;i<8;i++) {
+					von[i] = kb[i];
+					von[i+8] = v[i+8]; 
+				}
 			}
+			ni++;
+			byte.push_back(von);
 		}
 		else {
 			if (upf[t].to_ulong() == 1) {
@@ -480,22 +502,33 @@ void decomp(fstream& in, fstream& out) {
 			}
 			if (upf[t].to_ulong() == 2) {
 				if (getVect(bnode,ni) == FALSE)
-					cxl.reset();
+					kb.reset();
 				else
-					cxl.set();
+					kb.set();
 				ni++;
+				for (int i=0;i<8;i++) {
+					von[i] = kb[i];
+					von[i+8] = v[i+8]; 
+				}
 			}
 			if (upf[t].to_ulong() == 3) {
 				if (getVect(bnode,ni) == FALSE) {
-					cxl.reset();
+					kb.reset();
 					if (getVect(bnode,ni) == FALSE)
-						cxr.reset();
+						kb.reset();
 					else
-						cxr.set();
+						kb.set();
+					for (int i=0;i<8;i++) {
+						von[i] = kb[i];
+						von[i+8] = v[i+8]; 
+					}
 				}
 				else {
-					cxl.set();
-					von = cxl.to_string() + v.to_string();
+					kb.set();
+					for (int i=0;i<8;i++) {
+						von[i] = kb[i];
+						von[i+8] = v[i+8]; 
+					}
 				}
 				byte.push_back(von);
 				ni++;
