@@ -9,20 +9,20 @@
 
 using namespace std;
 
-bitset<16> compress(fstream& in, fstream& out) {
+bitset<32> compress(fstream& in, fstream& out) {
 
 	int i=0, h=1, sgsh=0, sty=0, n = 1;
 	long t = 314, ty=0, b=0;
-	vector<bitset<16>> x, xta, jxta;
+	vector<bitset<32>> x, xta, jxta;
 	vector<bool> tnode,ynode;
 	vector<bool> vnode, bnode;
 	vector<unsigned char> uch,ych,tch,vch,bch;
 	bitset<64> last;
-	bitset<8> temp2, kbp, pbk;
+	bitset<4> temp2, kbp, pbk;
 	bitset<2> upg;
-	vector<bitset<8>> page;
+	vector<bitset<4>> page;
 	vector<bitset<2>> upage;
-	bitset<16> back;
+	bitset<32> back;
 	in.seekg(in.beg,in.end);
 	long length = in.tellg();
 	in.seekg(in.end,in.beg);
@@ -37,10 +37,10 @@ bitset<16> compress(fstream& in, fstream& out) {
 	}
 	while (h) {	
 		// Clear byte (z)
-		bitset<16> v, h3, h2, h1, c1, c2 = 0;
+		bitset<32> v, h3, h2, h1, c1, c2 = 0;
 		int a=0, i=0, m=0;
-		vector<bitset<16> > k, y;
-		char l = '\0';
+		vector<bitset<32> > k, y;
+		char bl, l = '\0';
 
 		// Create one pair of keys for each tier
 
@@ -55,24 +55,36 @@ bitset<16> compress(fstream& in, fstream& out) {
 			h3.reset();
 		
 			// Cycle Keys and Create final byte
-			for (int g = 0;g<2;g++) {
-				// 'xta' will always have 'h3's in it. That's a non-debatable
-				// This entire 'h' while loops till xta only has one left. (top of pyramid)
-				if (j == 0) {
-					in.get(l);
-					y.push_back(static_cast<int>(l));
-				}
-				else {
-					l = xta[0].to_ulong();
-					if (xta.size() > 1)
-						xta.erase(xta.begin()+1);
-					else
-						y.push_back(0);
+			// 'xta' will always have 'h3's in it. That's a non-debatable
+			// This entire 'h' while loops till xta only has one left. (top of pyramid)
+			if (j == 0) {
+				in.get(l);
+				if (in.peek() != EOF) {
+					in.get(bl);
 					y.push_back(static_cast<long>(l));
 				}
+				else if (l == bl) {
+					y.push_back(300);
+					in.putback(bl);
+				}
+				else
+					y.push_back(static_cast<long>(bl));
 			}
-			if (y.size() < 2)
-				y.push_back(0);
+			else {
+				l = xta[0].to_ulong();
+				if (xta.size() > 1) {
+					bl = xta[1].to_ulong();
+					y.push_back(static_cast<long>(l));
+					xta.erase(xta.begin(),xta.begin()+2);
+				}
+				else if (l == bl) {
+					y.push_back(300);
+					xta.erase(xta.begin()+1);
+				}
+				else
+					y.push_back(static_cast<long>(l));
+			}
+
 			h1 = (y[0] ^ k[0]);
 			h2 = (h1 ^ y[1]);
 			h3 = (h2 ^ k[1]);
@@ -113,12 +125,12 @@ bitset<16> compress(fstream& in, fstream& out) {
 
 				u = 0;
 
-				for (int cnt = 0;cnt < 8;cnt++) {
-					kbp[cnt] = back[cnt+8];
+				for (int cnt = 0;cnt < 4;cnt++) {
+					kbp[cnt] = back[cnt+4];
 					pbk[cnt] = back[cnt];
 				}
 
-				if (pbk.to_string() != v.to_string().substr(0,7)) {
+				if (pbk.to_string() != v.to_string().substr(0,3)) {
 					for (int g=0;g<8;g++)
 						temp2[g] = v[g];
 
@@ -138,8 +150,8 @@ bitset<16> compress(fstream& in, fstream& out) {
 				else tnode.push_back(1);
 
 				//cout << kbp.to_string() << endl << v.to_string().substr(32,63) << endl << endl;
-				if (kbp.to_string() != v.to_string().substr(8,15)) {
-					for (int g=8;g<16;g++)
+				if (kbp.to_string() != v.to_string().substr(4,7)) {
+					for (int g=4;g<8;g++)
 						temp2[g] = v[g];
 					if (kbp.all() == 1) {
 						ty++;
@@ -213,7 +225,7 @@ bitset<16> compress(fstream& in, fstream& out) {
 			}
 
 		} while(in.peek() != EOF && xta.size() != 1);
-
+		k.clear();
 		// Reset vars, move file position (see above)
 		// swap out jxta/xta to set len of Keys Cycle
 		n = 1;
@@ -295,13 +307,13 @@ bitset<16> compress(fstream& in, fstream& out) {
 	if (page.size() >= 1)
 		temp2 = page[0];
 	while (page.size() > j) {
-		if (b%8 == 0) {
+		if (b%4 == 0) {
 			j++;
 			temp2 = page[j];
 		}
 		if (b%64 == 0)
 			out << static_cast<char>(last.to_ulong()) << flush;
-		last[b%64] = temp2[b%8];
+		last[b%64] = temp2[b%4];
 		b++;
 	}
 	page.clear();
@@ -311,7 +323,7 @@ bitset<16> compress(fstream& in, fstream& out) {
 	out << n << endl << "n" << endl;
 
 	cout << "Within: " << sty << " Without: " << sgsh << endl << ty;
-	bitset<16> hey = xta[0];
+	bitset<32> hey = xta[0];
 	out.seekp(in.end,in.beg);
 	out << static_cast<char>(t);
 	return hey;
@@ -321,8 +333,8 @@ bool getVect(vector<bitset<64>> node, int pos) {
 	static long y;
 	bitset<64> n;
 	n = node[node.size() - y - 1];
-	return static_cast<bool>(n[pos]);
-	if (pos == 0)
+	return static_cast<bool>(n[pos%64]);
+	if (pos%64 == 0)
 		y++;
 }
 			
@@ -336,7 +348,7 @@ void decomp(fstream& in, fstream& out) {
 	vector<bitset<16>> kbp, pbk;
 	vector<bool> tn;
 	vector<int> swtch;
-	vector<bitset<64>> tnode, vnode, bnode, page, upage;
+	vector<bitset<64>> tnode, vnode, bnode, page, upage, xta;
 	bitset<16> v, h3, h2, h1, c1, c2 = 0;
 	vector<bitset<16>> k, y;
 	bitset<64> h, n;
@@ -345,7 +357,7 @@ void decomp(fstream& in, fstream& out) {
 	bitset<8> cxr,cxl;
 	vector<bitset<16>> byte;
 	bitset<16> von;
-	bool TRUE=1, FALSE=0;
+	bool TRUE=1, FALSE=0, ghost;
 	int c=0,m=0,ni=0,vi=0;
 	in.seekg(in.beg,in.end);
 	long length = in.tellg();
@@ -381,6 +393,10 @@ void decomp(fstream& in, fstream& out) {
 			for (char i : s)
 				xta.push_back(static_cast<int>(i));
 		}
+		if (en == "n") {
+			for (char i : s)
+				ghost = static_cast<int>(i);
+		}
 	} while (in.peek() != EOF);
 	
 
@@ -394,7 +410,7 @@ void decomp(fstream& in, fstream& out) {
 		c++;
 	}
 	c = 1;
-	j = k[0];
+	j = k[0].to_ulong();
 	while (j > 314) {
 		j--;
 		k.push_back(j);
@@ -438,7 +454,6 @@ void decomp(fstream& in, fstream& out) {
 			}
 			if (getVect(bnode,ni) == TRUE) {
 				bk.set();
-				ni++;
 				for (int i=0;i<8;i++) {
 					von[i+8] = bk[i+8];
 					von[i] = v[i]; 
@@ -446,12 +461,12 @@ void decomp(fstream& in, fstream& out) {
 			}
 			else {
 				kb.reset();
-				ni++;
 				for (int i=0;i<8;i++) {
 					von[i+8] = kb[i+8];
 					von[i] = v[i]; 
 				}
 			}
+			ni++;
 			byte.push_back(von);
 		}
 		else if (upf[t].to_ulong() == 0 && getVect(tnode,m) == FALSE && getVect(tnode,m+1) == TRUE) {
@@ -462,7 +477,6 @@ void decomp(fstream& in, fstream& out) {
 					von[i] = bk[i];
 					von[i+8] = v[i+8]; 
 				}
-				byte.push_back(von);
 			}
 			else if (getVect(bnode,ni) == FALSE) {
 				kb.reset();
@@ -470,8 +484,9 @@ void decomp(fstream& in, fstream& out) {
 					von[i] = kb[i];
 					von[i+8] = v[i+8]; 
 				}
-				byte.push_back(von);
 			}
+			ni++;
+			byte.push_back(von);
 		}
 		else if (upf[t].to_ulong() == 0 && getVect(tnode,m) == FALSE && getVect(tnode,m+1) == FALSE) {
 			m += 2;
@@ -495,17 +510,19 @@ void decomp(fstream& in, fstream& out) {
 		else {
 			if (upf[t].to_ulong() == 1) {
 				if (getVect(bnode,ni) == FALSE)
-					cxr.reset();
+					bk.reset();
 				else
-					cxr.set();
-				ni++;
+					bk.set();
+				for (int i=0;i<8;i++) {
+					von[i+8] = bk[i+8];
+					von[i] = v[i]; 
+				}
 			}
 			if (upf[t].to_ulong() == 2) {
 				if (getVect(bnode,ni) == FALSE)
 					kb.reset();
 				else
 					kb.set();
-				ni++;
 				for (int i=0;i<8;i++) {
 					von[i] = kb[i];
 					von[i+8] = v[i+8]; 
@@ -514,25 +531,23 @@ void decomp(fstream& in, fstream& out) {
 			if (upf[t].to_ulong() == 3) {
 				if (getVect(bnode,ni) == FALSE) {
 					kb.reset();
+					ni++;
 					if (getVect(bnode,ni) == FALSE)
-						bk.reset();
+						kb.reset();
 					else
-						bk.set();
-					for (int i=0;i<8;i++) {
-						von[i+8] = kb[i];
-						von[i] = bk[i]; 
-					}
+						kb.set();
 				}
 				else {
-					kb.set();
+					bk.set();
+					ni++;
 					if (getVect(bnode,ni) == FALSE)
 						bk.reset();
 					else
 						bk.set();
-					for (int i=0;i<8;i++) {
-						von[i+8] = kb[i];
-						von[i] = bk[i]; 
-					}
+				}
+				for (int i=0;i<8;i++) {
+					von[i] = kb[i];
+					von[i+8] = bk[i]; 
 				}
 				byte.push_back(von);
 				ni++;
@@ -564,7 +579,7 @@ int main(int c, char * argv[]) {
 
 	cout << "Comb Compressor - 2016\n";
 
-	bitset<16> xt = compress(in,out);
+	bitset<32> xt = compress(in,out);
 	out.seekp(out.end,out.beg);
 	out << xt << std::endl;
 
