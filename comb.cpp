@@ -372,7 +372,15 @@ void decomp(fstream& in, fstream& out) {
 			for (char i : s)
 				upage.push_back(static_cast<int>(i));
 		}
-	} while (en != "u");
+		if (en == "o") {
+			for (char i : s)
+				k.push_back(static_cast<int>(i));
+		}
+		if (en == "x") {
+			for (char i : s)
+				xta.push_back(static_cast<int>(i));
+		}
+	} while (in.peek() != EOF);
 	
 
 	while (upage.size() - c - 1 >= 0) {
@@ -385,6 +393,11 @@ void decomp(fstream& in, fstream& out) {
 		c++;
 	}
 	c = 1;
+	j = k[0];
+	while (j > 314) {
+		j--;
+		k.push_back(j);
+	}
 	
 	for (int t=0;t<upf.size();t++) {
 		v = (h3 ^ k[0] ^ k[1]);
@@ -421,12 +434,12 @@ void decomp(fstream& in, fstream& out) {
 			if (getVect(bnode,ni) == TRUE) {
 				bk.set();
 				ni++;
-				bitset<16> von = bk.to_string() + v.to_string().substr(0,7);
+				von = bk.to_string() + v.to_string().substr(0,7);
 			}
 			else {
 				kb.reset();
 				ni++;
-				bitset<16> von =  kb.reset().to_string() + v.to_string().substr(0,7);
+				von =  kb.reset().to_string() + v.to_string().substr(0,7);
 			}
 			byte.push_back(von);
 		}
@@ -434,12 +447,12 @@ void decomp(fstream& in, fstream& out) {
 			m += 2;
 			if (getVect(bnode,ni) == TRUE) {
 				bk.set();
-				bitset<16> von = v.to_string().substr(8,15) + bk.to_string();
+				von = v.to_string().substr(8,15) + bk.to_string();
 				byte.push_back(von);
 			}
 			else if (getVect(bnode,ni) == FALSE) {
 				kb.reset();
-				bitset<16> von = v.to_string().substr(8,15) + kb.to_string();
+				von = v.to_string().substr(8,15) + kb.to_string();
 				byte.push_back(von);
 			}
 		}
@@ -447,12 +460,12 @@ void decomp(fstream& in, fstream& out) {
 			m += 2;
 			if (getVect(bnode,ni) == TRUE) {
 				bk.set();
-				bitset<16> von = v.to_string().substr(8,15) + bk.to_string();
+				von = v.to_string().substr(8,15) + bk.to_string();
 				byte.push_back(von);
 			}
 			else if (getVect(bnode,ni) == FALSE) {
 				kb.reset();
-				bitset<16> von = v.to_string().substr(8,15) + kb.to_string();
+				von = v.to_string().substr(8,15) + kb.to_string();
 				byte.push_back(von);
 			}
 		}
@@ -481,7 +494,7 @@ void decomp(fstream& in, fstream& out) {
 				}
 				else {
 					cxl.set();
-					bitset<16> von = cxl.to_string() + v.to_string();
+					von = cxl.to_string() + v.to_string();
 				}
 				byte.push_back(von);
 				ni++;
